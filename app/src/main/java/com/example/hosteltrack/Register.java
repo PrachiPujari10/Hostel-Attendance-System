@@ -60,14 +60,15 @@ public class Register extends AppCompatActivity {
         signUpBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (validateForm()) {
+                String role = getSelectedRole();
+                if (validateForm() || "Admin".equals(role)) {
                 String enrollmentNumber = editenrnumber.getText().toString().trim();
 
                 validenrnumber(enrollmentNumber, new EnrollmentValidationCallback() {
                     @Override
                     public void onValidationResult(boolean isValid) {
                         // Handle the validation result here
-                        if (isValid) {
+                        if (isValid || "Admin".equals(role)) {
                             // Enrollment number is valid
                             Toast.makeText(Register.this, "velid", Toast.LENGTH_SHORT).show();
 
@@ -170,11 +171,18 @@ public class Register extends AppCompatActivity {
             isValid = false;
             editTextEmail.setError("Enter a valid email address");
         }
-
-        if (enrnumber.isEmpty()) {
-            isValid = false;
-            editenrnumber.setError("Enter a valid Enrollment number");
+        String role = getSelectedRole();
+        if("Admin".equals(role))
+        {
+            editenrnumber.setText("2112221122");
         }
+        else {
+            if (enrnumber.isEmpty()) {
+                isValid = false;
+                editenrnumber.setError("Enter a valid Enrollment number");
+            }
+        }
+
         if (phone.isEmpty() || !Patterns.PHONE.matcher(phone).matches()) {
             isValid = false;
             editTextPhone.setError("Enter a valid phone number");
@@ -198,8 +206,9 @@ public class Register extends AppCompatActivity {
             String enrnumber = editenrnumber.getText().toString().trim();
             String phone = editTextPhone.getText().toString().trim();
             String role = getSelectedRole();
+            String time = "00:00";
 
-            User newUser = new User(username, email, enrnumber,phone, role);
+            User newUser = new User(username, email, enrnumber,phone, role,time);
 
             // Adjust the collection path based on the user's role
 

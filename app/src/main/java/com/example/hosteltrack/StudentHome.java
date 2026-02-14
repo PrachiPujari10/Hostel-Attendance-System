@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -57,8 +58,7 @@ public class StudentHome extends AppCompatActivity {
         btnMarkAttendance = findViewById(R.id.btnMarkAttendance);
         db = FirebaseFirestore.getInstance();
         btnSignOut = findViewById(R.id.btnSignOut);
-        btnMarkAttendance.setEnabled(true);
-        btnMarkAttendance.setVisibility(View.VISIBLE);
+
         TextView tvDate = findViewById(R.id.tvDate);
 
         // Get today's date in the specified format
@@ -71,10 +71,28 @@ public class StudentHome extends AppCompatActivity {
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        timeisvalid();
+     //   timeisvalid();
 
 
+        btnMarkAttendance.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Get the code entered in the EditText
+                String attendanceCode = etCode.getText().toString().trim();
 
+                // Check if the code is not empty
+                if (!attendanceCode.isEmpty()) {
+                    String currdate = getCurrentDate("ddMMyyyy");
+                    checkLocationAndMarkAttendance();
+//                    checkAttendanceCode(attendanceCode, currdate);
+                    // Show a Toast with the attendance code
+                    Toast.makeText(StudentHome.this, "Attendance Code: " + attendanceCode, Toast.LENGTH_SHORT).show();
+                } else {
+                    // Show a Toast if the code is empty
+                    Toast.makeText(StudentHome.this, "Please enter the attendance code", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
 
 
@@ -134,34 +152,10 @@ public class StudentHome extends AppCompatActivity {
                             Toast.makeText(StudentHome.this, ""+isValid, Toast.LENGTH_SHORT).show();
 //                            if (isCurrentTimeBetween(startTime, endTime)) {
                                 // Enable button for marking attendance
-                                btnMarkAttendance.setVisibility(View.VISIBLE);
-                                btnMarkAttendance.setEnabled(true);
-                                btnMarkAttendance.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        // Get the code entered in the EditText
-                                        String attendanceCode = etCode.getText().toString().trim();
-
-                                        // Check if the code is not empty
-                                        if (!attendanceCode.isEmpty()) {
-                                            String currdate = getCurrentDate("ddMMyyyy");
-                                            checkLocationAndMarkAttendance();
-//                    checkAttendanceCode(attendanceCode, currdate);
-                                            // Show a Toast with the attendance code
-                                            Toast.makeText(StudentHome.this, "Attendance Code: " + attendanceCode, Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            // Show a Toast if the code is empty
-                                            Toast.makeText(StudentHome.this, "Please enter the attendance code", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
 
 
-//                            } else {
-//                                // Disable button for marking attendance
-//                                btnMarkAttendance.setVisibility(View.INVISIBLE);
-//                                btnMarkAttendance.setEnabled(false);
-//                            }
+
+
 
 
                         }
@@ -185,8 +179,10 @@ public class StudentHome extends AppCompatActivity {
         // Replace these values with the admin's set location
 //        double adminLatitude = 17.04625024791985; // Admin's latitude
 //        double adminLongitude = 74.61982065468233; // Admin's longitude
-        double adminLatitude = 18.452907138112447; // Admin's latitude
-        double adminLongitude = 73.85052345448871; // Admin's longitude
+//        double adminLatitude = 18.452907138112447; // Admin's latitude
+//        double adminLongitude = 73.85052345448871; // Admin's longitude
+        double adminLatitude = 18.484551473981526; // Admin's latitude
+        double adminLongitude = 73.81785675649755; // Admin's longitude
 
 
         // Set the radius within which the student can mark attendance
@@ -199,29 +195,31 @@ public class StudentHome extends AppCompatActivity {
 
             return;
         }
-        fusedLocationProviderClient.getLastLocation()
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        Location studentLocation = task.getResult();
-                        // Check if the student is within the specified radius of the admin's location
-                        if (isLocationWithinRadius(studentLocation, adminLatitude, adminLongitude, radius)) {
-                            // Student is within the radius, allow attendance marking
-                            Toast.makeText(this, " same location", Toast.LENGTH_SHORT).show();
-
-                            String attendanceCode = etCode.getText().toString().trim();
-                            String currdate = getCurrentDate("ddMMyyyy");
-                            checkAttendanceCode(attendanceCode, currdate);
-//                            markAttendance();
-
-                        } else {
-                            // Student is outside the radius, show a message
-                            Toast.makeText(StudentHome.this, "You are not near the admin's location", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        // Handle location retrieval failure
-                        Toast.makeText(StudentHome.this, "Error getting location", Toast.LENGTH_SHORT).show();
-                    }
-                });
+        String attendanceCode = etCode.getText().toString().trim();
+        String currdate = getCurrentDate("ddMMyyyy");
+        checkAttendanceCode(attendanceCode, currdate);
+//        fusedLocationProviderClient.getLastLocation()672803
+//                .addOnCompleteListener(this, task -> {
+//                    if (task.isSuccessful() && task.getResult() != null) {
+//                        Location studentLocation = task.getResult();
+//                        // Check if the student is within the specified radius of the admin's location
+//                        if (isLocationWithinRadius(studentLocation, adminLatitude, adminLongitude, radius)) {
+//                            // Student is within the radius, allow attendance marking
+//                            Toast.makeText(this, " same location", Toast.LENGTH_SHORT).show();
+//
+//
+//                            checkAttendanceCode(attendanceCode, currdate);
+////                            markAttendance();
+//
+//                        } else {
+//                            // Student is outside the radius, show a message
+//                            Toast.makeText(StudentHome.this, "You are not near the admin's location", Toast.LENGTH_SHORT).show();
+//                        }
+//                    } else {
+//                        // Handle location retrieval failure
+//                        Toast.makeText(StudentHome.this, "Error getting location", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
     }
     private boolean isLocationWithinRadius(Location studentLocation, double adminLatitude, double adminLongitude, double radius) {
         float[] distance = new float[1];
@@ -270,13 +268,29 @@ public class StudentHome extends AppCompatActivity {
                                                         // Document successfully created/updated
                                                         // Query documents where "present" is 0
 
+//                                                        CollectionReference absentCollectionRef = db.collection("attendance")
+//                                                                .document(currentDate)
+//                                                                .collection("absent");
 // Reference to the specific attendance document for the current student
                                                         DocumentReference studentAttendanceRef = db.collection("attendance")
                                                                 .document(currentDate)
-                                                                .collection("absent") // Assuming you're updating within the "absent" collection based on your example
+                                                                    .collection("absent") // Assuming you're updating within the "absent" collection based on your example
                                                                 .document(currentUserUID);
 
 // Update the "present" field for the current student to 1
+                                                        Calendar calendar = Calendar.getInstance();
+                                                        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                                                        String currentTime = dateFormat.format(calendar.getTime());
+                                                        DocumentReference userDocRef = db.collection("students").document(currentUserUID);
+                                                        userDocRef.update("time", currentTime)
+                                                                .addOnSuccessListener(aVoid4 -> {
+                                                                    Toast.makeText(StudentHome.this, "Attendance marked at " + currentTime, Toast.LENGTH_SHORT).show();
+                                                                })
+                                                                .addOnFailureListener(e -> {
+                                                                    Toast.makeText(StudentHome.this, "Failed to mark attendance: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                                                });
+
+
                                                         studentAttendanceRef.update("present", 1)
                                                                 .addOnSuccessListener(aVoid1 -> Log.d(TAG, "Attendance updated to present for student UUID: " + currentUserUID))
                                                                 .addOnFailureListener(e -> Log.w(TAG, "Error updating attendance for student UUID: " + currentUserUID, e));

@@ -50,6 +50,9 @@ public class Present extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
+
+
+
         tvPresentCount = findViewById(R.id.tvPresentCount);
 
         Calendar calendar = Calendar.getInstance();
@@ -107,9 +110,13 @@ public class Present extends AppCompatActivity {
                             if (document.exists()) {
                                 String name = document.getString("username");
                                 String number = document.getString("phone");
+                                String enrnumber = document.getString("enrnumber");
+                                String time = document.getString("time");
+
                                 if (name != null) {
                                     // Create a Student object and add it to the list
-                                    presentStudentsList.add(new Student(uuid, name,number));
+
+                                    presentStudentsList.add(new Student(uuid, name,number,enrnumber,time));
                                     adapter.notifyDataSetChanged();
                                 }
                             } else {

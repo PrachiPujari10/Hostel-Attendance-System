@@ -29,12 +29,16 @@ import java.util.Map;
 import java.util.Random;
 
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.SetOptions;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,7 +76,7 @@ public class AdminHome extends AppCompatActivity {
                 showTimePickerDialog(true);
             }
         });
-
+        fetchTimeFromFirestoreAndSetToTextViews();
         Button btnSetEndTime = findViewById(R.id.btnSetEndTime);
         btnSetEndTime.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,6 +94,7 @@ public class AdminHome extends AppCompatActivity {
         btnabsent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent presentIntent = new Intent(AdminHome.this,Absent.class);
                 startActivity(presentIntent);
             }
@@ -102,14 +107,17 @@ public class AdminHome extends AppCompatActivity {
         setLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 // Call a function to set the admin's location
                 Toast.makeText(AdminHome.this, "Set Location", Toast.LENGTH_SHORT).show();
-                setAdminLocation();
-                double adminLatitude = 17.028580335308902; // Admin's latitude
-                double adminLongitude = 74.62077049658996; // Admin's longitude
+                setAdminLocation();//college
+                double adminLatitude = 17.02887286457957; // Admin's latitude
+                double adminLongitude = 74.62082570000001; // Admin's longitude
 
 //                18.452659004322047, 73.85051395174985
 //                17.02871867578921, 74.62093129501355
+                String currentDate = getCurrentDate("ddMMyyyy");
+                markAllStudentsAbsent(currentDate);
                 saveLocationToFirestore(adminLatitude, adminLongitude);
 
 
@@ -122,7 +130,67 @@ public class AdminHome extends AppCompatActivity {
                         "2112280163",
                         "2112280164",
                         "2112280169",
-                        "2112280283"
+                        "2112280283",
+                        "1912280136",
+                        "2112280001",
+                        "2112280110",
+                        "2112280112",
+                        "2112280114",
+                        "2112280115",
+                        "2112280117",
+                        "2112280118",
+                        "2112280120",
+                        "2112280121",
+                        "2112280122",
+                        "2112280123",
+                        "2112280124",
+                        "2112280125",
+                        "2112280126",
+                        "2112280127",
+                        "2112280128",
+                        "2112280129",
+                        "2112280131",
+                        "2112280132",
+                        "2112280134",
+                        "2112280135",
+                        "2112280136",
+                        "2112280137",
+                        "2112280138",
+                        "2112280139",
+                        "2112280140",
+                        "2112280141",
+                        "2112280142",
+                        "2112280143",
+                        "2112280144",
+                        "2112280145",
+                        "2112280146",
+                        "2112280147",
+                        "2112280148",
+                        "2112280151",
+                        "2112280152",
+                        "2112280154",
+                        "2112280155",
+                        "2112280156",
+                        "2112280157",
+                        "2112280159",
+                        "2112280160",
+                        "2112280162",
+                        "2112280165",
+                        "2112280166",
+                        "2112280167",
+                        "2112280168",
+                        "2112280171",
+                        "2112280172",
+                        "2112280280",
+                        "2112280281",
+                        "2112280282",
+                        "2212280447",
+                        "2212280448",
+                        "2212280449",
+                        "2212280452",
+                        "2212280455"
+
+
                 );
 
                 // Store enrollment numbers in Firestore
@@ -231,8 +299,8 @@ public class AdminHome extends AppCompatActivity {
 
                             // Save the admin's location to Firestore
 //                            saveLocationToFirestore(adminLocation.getLatitude(), adminLocation.getLongitude());
-                                    double adminLatitude = 17.028795763071; // Admin's latitude
-                                    double adminLongitude = 74.62077049658996; // Admin's longitude
+                                    double adminLatitude = 17.0288933814879; // Admin's latitude
+                                    double adminLongitude = 74.62093298835902; // Admin's longitude
 
                                     saveLocationToFirestore(adminLatitude, adminLongitude);
 
@@ -454,10 +522,10 @@ public class AdminHome extends AppCompatActivity {
         Map<String, Object> timeData = new HashMap<>();
         timeData.put(field, time);
 
-        // Add the time to Firestore
+        // Add or update the time in Firestore
         db.collection("attendance")  // Collection named "attendance"
                 .document(currentDate)  // Document with the current date
-                .update(timeData) // Update the data
+                .set(timeData, SetOptions.merge()) // Set the data and merge with existing data
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -469,9 +537,45 @@ public class AdminHome extends AppCompatActivity {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         // Handle errors
-                        Toast.makeText(AdminHome.this, "Error updating time", Toast.LENGTH_SHORT).show();
-
+                        Toast.makeText(AdminHome.this, "Error setting time: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+    private void fetchTimeFromFirestoreAndSetToTextViews() {
+        // Get the current date (you need to implement this part)
+        String currentDate = getCurrentDate("ddMMyyyy");
+
+        // Get the document reference
+        DocumentReference docRef = db.collection("attendance")
+                .document(currentDate);
+
+        // Fetch data from Firestore
+        docRef.get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            // Document exists, fetch start and end time
+                            String startTime = documentSnapshot.getString("start_time");
+                            String endTime = documentSnapshot.getString("end_time");
+
+                            // Set start and end time to TextViews
+                            tvStartTime.setText("Start Time: " + startTime);
+                            tvEndTime.setText("End Time: " + endTime);
+                        } else {
+                            // Document does not exist
+                            Toast.makeText(AdminHome.this, "No attendance data found for today", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Handle errors
+                        Toast.makeText(AdminHome.this, "Error fetching time: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
 }

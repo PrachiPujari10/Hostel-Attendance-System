@@ -2,21 +2,66 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/tvStudentName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"/>
+    <!-- First Column -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:background="@drawable/column_border">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
-        android:layout_marginTop="8dp"/>
+        <TextView
+            android:id="@+id/tvEnrollmentNumber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:text="22002180130"
+            android:textColor="@android:color/black"/>
+    </LinearLayout>
+
+    <!-- Second Column -->
+    <LinearLayout
+        android:layout_width="40dp"
+        android:layout_height="30dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+
+        android:background="@drawable/column_border">
+
+        <TextView
+            android:id="@+id/tvStudentName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:gravity="center_horizontal"
+
+            android:text="Sandhya Rathi"
+            android:textColor="@android:color/black"/>
+    </LinearLayout>
+
+    <!-- Third Column -->
+    <LinearLayout
+        android:layout_width="90dp"
+        android:layout_height="30dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+
+        android:background="@drawable/column_border">
+
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:text="10:00 PM"
+            android:gravity="center_horizontal"
+
+            android:textColor="@android:color/darker_gray"/>
+    </LinearLayout>
 
 </LinearLayout>

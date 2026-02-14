@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import android.Manifest;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.text.SimpleDateFormat;
@@ -91,6 +92,15 @@ public class Absent extends AppCompatActivity {
         // Fetch UUIDs of absent students from Firestore
         // Reference to the "absent" subcollection for the current date
         String currentDate = getCurrentDate("ddMMyyyy");
+
+        // Assuming you have a reference to your TableLayout and RecyclerView
+        TableLayout tableLayout = findViewById(R.id.Heading);
+        StudentAdapter studentAdapter = new StudentAdapter(absentStudentsList, tableLayout);
+        studentAdapter.setupTable();
+
+// Loop through your adapter data and add rows to the TableLayout
+
+
 
         CollectionReference absentCollection = db.collection("attendance")
                 .document(currentDate)
@@ -181,9 +191,12 @@ public class Absent extends AppCompatActivity {
                             if (document.exists()) {
                                 String name = document.getString("username");
                                 String number = document.getString("phone");
+                                String enrnumber = document.getString("enrnumber");
+                                String time = "00:00";
+
                                 if (name != null) {
                                     // Create a Student object and add it to the list
-                                    absentStudentsList.add(new Student(uuid, name,number));
+                                    absentStudentsList.add(new Student(uuid, name,number,enrnumber,time));
 //                                    Toast.makeText(this, "no:"+number, Toast.LENGTH_SHORT).show();
                                     adapter.notifyDataSetChanged();
                                 }
@@ -215,8 +228,10 @@ public class Absent extends AppCompatActivity {
                             if (document.exists()) {
                                 String name = document.getString("name");
                                 String number = document.getString("phone");
+                                String enrnumber = document.getString("enrnumber");
+                                String time = document.getString("time");
                                 if (name != null) {
-                                    absentStudentsList.add(new Student(uuid, name,number));
+                                    absentStudentsList.add(new Student(uuid, name,number,enrnumber,time));
                                     adapter.notifyDataSetChanged();
                                 }
                             } else {
